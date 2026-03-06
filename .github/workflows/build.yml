@@ -1,0 +1,53 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: "3.38.6"
+          cache: true
+
+      - name: Setup Android Signing
+        run: |
+          echo "${{ secrets.ANDROID_KEY_PROPERTIES }}" > android/key.properties
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/flauth.jks
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Get version
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | sed 's/version: //' | tr -d ' ')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Build APK (Universal)
+        run: |
+          flutter build apk --release
+          mv build/app/outputs/flutter-apk/app-release.apk flauth-android-universal-${{ env.VERSION }}.apk
+
+      - name: Build APK (Split)
+        run: |
+          flutter build apk --release --split-per-abi
+          mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk flauth-android-armeabi-v7a-${{ env.VERSION }}.apk
+          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk flauth-android-arm64-v8a-${{ env.VERSION }}.apk
+          mv build/app/outputs/flutter-apk/app-x86_64-release.apk flauth-android-x86_64-${{ env.VERSION }}.apk
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: flauth-android-apks
+          path: |
+            flauth-android-*.apk
