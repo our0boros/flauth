@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/account_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/account.dart';
@@ -32,20 +33,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showSetupDialog(AuthProvider auth) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Protect your accounts'),
-        content: const Text(
-          'It is highly recommended to set up a PIN to secure your 2FA tokens. Would you like to do it now?',
-        ),
+        title: Text(l10n.protectYourAccounts),
+        content: Text(l10n.setupPinRecommended),
         actions: [
           TextButton(
             onPressed: () {
               auth.skipSetupPrompt();
               Navigator.of(context).pop();
             },
-            child: const Text('Later'),
+            child: Text(l10n.later),
           ),
           FilledButton(
             onPressed: () {
@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (context) => const SecurityScreen()),
               );
             },
-            child: const Text('Setup Now'),
+            child: Text(l10n.setupNow),
           ),
         ],
       ),
@@ -63,13 +63,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flauth'),
+        title: Text(l10n.appTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.import_export),
-            tooltip: 'Import / Export',
+            tooltip: l10n.importExport,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -80,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.info_outline),
-            tooltip: 'About',
+            tooltip: l10n.about,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const AboutScreen()),
@@ -88,13 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ],
-        // Display a progress bar at the bottom of the AppBar.
-        // This gives a visual indication of when the code will expire.
         bottom: _AppBarProgress(),
       ),
       body: Selector<AccountProvider, List<Account>>(
-        // Optimization: Selector only triggers a rebuild if the returned value (List reference)
-        // changes. AccountProvider ensures this by creating a new list copy on every modification.
         selector: (_, p) => p.accounts,
         builder: (context, accounts, child) {
           if (accounts.isEmpty) {
@@ -105,13 +103,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Icon(Icons.lock_clock, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
                   Text(
-                    'No accounts yet',
+                    l10n.noAccountsYet,
                     style: Theme.of(
                       context,
                     ).textTheme.titleLarge?.copyWith(color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
-                  const Text('Tap the button below to scan a QR code'),
+                  Text(l10n.tapToScan),
                 ],
               ),
             );
@@ -144,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ).push(MaterialPageRoute(builder: (context) => const ScanQrScreen()));
         },
         icon: const Icon(Icons.qr_code_scanner),
-        label: const Text('Scan'),
+        label: Text(l10n.scan),
       ),
     );
   }

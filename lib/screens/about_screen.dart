@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../l10n/app_localizations.dart';
+import '../providers/locale_provider.dart';
 import 'security_screen.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -16,7 +19,7 @@ class AboutScreen extends StatelessWidget {
   Future<void> _launchEmail() async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
-      path: 'dev@liujiacai.net',
+      path: 'our0boros@163.com',
       query: 'subject=Flauth Feedback',
     );
     if (!await launchUrl(emailLaunchUri)) {
@@ -24,15 +27,27 @@ class AboutScreen extends StatelessWidget {
     }
   }
 
+  void _showLanguageSettings(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => const _LanguageSettingsSheet(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
-      appBar: AppBar(title: const Text('About')),
+      appBar: AppBar(title: Text(l10n.about)),
       body: FutureBuilder<PackageInfo>(
         future: PackageInfo.fromPlatform(),
         builder: (context, snapshot) {
           final version = snapshot.hasData
-              ? 'Version ${snapshot.data!.version} (${snapshot.data!.buildNumber})'
+              ? l10n.version(
+                  snapshot.data!.version,
+                  snapshot.data!.buildNumber,
+                )
               : 'Loading...';
 
           return ListView(
@@ -61,15 +76,15 @@ class AboutScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              const Text(
-                'A privacy-first, fully open-source TOTP authenticator for Android, macOS, Windows, and Linux.',
+              Text(
+                l10n.privacyFirst,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
               ListTile(
                 leading: const Icon(Icons.security),
-                title: const Text('Security Settings'),
-                subtitle: const Text('Setup PIN & Biometrics'),
+                title: Text(l10n.securitySettings),
+                subtitle: Text(l10n.setupPinBiometrics),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -80,23 +95,30 @@ class AboutScreen extends StatelessWidget {
               ),
               const Divider(),
               ListTile(
+                leading: const Icon(Icons.language),
+                title: Text(l10n.languageSettings),
+                subtitle: Text(l10n.languageMode),
+                onTap: () => _showLanguageSettings(context),
+              ),
+              const Divider(),
+              ListTile(
                 leading: const Icon(Icons.code),
-                title: const Text('GitHub'),
-                subtitle: const Text('github.com/jiacai2050/flauth'),
-                onTap: () => _launchUrl('https://github.com/jiacai2050/flauth'),
+                title: Text(l10n.github),
+                subtitle: const Text('github.com/our0boros/flauth'),
+                onTap: () => _launchUrl('https://github.com/our0boros/flauth'),
                 trailing: const Icon(Icons.open_in_new, size: 16),
               ),
               ListTile(
                 leading: const Icon(Icons.email),
-                title: const Text('Feedback & Support'),
-                subtitle: const Text('dev@liujiacai.net'),
+                title: Text(l10n.feedbackSupport),
+                subtitle: const Text('our0boros@163.com'),
                 onTap: _launchEmail,
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               ),
               const SizedBox(height: 40),
               Center(
                 child: Text(
-                  '© ${DateTime.now().year} Jiacai Liu',
+                  l10n.copyright(DateTime.now().year),
                   style: Theme.of(
                     context,
                   ).textTheme.bodySmall?.copyWith(color: Colors.grey),
@@ -107,6 +129,104 @@ class AboutScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _LanguageSettingsSheet extends StatelessWidget {
+  const _LanguageSettingsSheet();
+
+  String _getLanguageName(String code) {
+    switch (code) {
+      case 'en':
+        return 'English';
+      case 'zh':
+        return '中文';
+      case 'ja':
+        return '日本語';
+      case 'es':
+        return 'Español';
+      case 'fr':
+        return 'Français';
+      case 'de':
+        return 'Deutsch';
+      case 'ru':
+        return 'Русский';
+      case 'pt':
+        return 'Português';
+      default:
+        return code;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    return Consumer<LocaleProvider>(
+      builder: (context, localeProvider, _) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  l10n.languageSettings,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              const Divider(),
+              RadioListTile<LocaleMode>(
+                title: Text(l10n.languageModeSystem),
+                value: LocaleMode.system,
+                groupValue: localeProvider.localeMode,
+                onChanged: (value) {
+                  localeProvider.setLocaleMode(value!);
+                },
+              ),
+              RadioListTile<LocaleMode>(
+                title: Text(l10n.languageModeCustom),
+                value: LocaleMode.custom,
+                groupValue: localeProvider.localeMode,
+                onChanged: (value) {
+                  localeProvider.setLocaleMode(value!);
+                },
+              ),
+              if (localeProvider.localeMode == LocaleMode.custom) ...[
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    l10n.selectLanguage,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    itemCount: LocaleProvider.supportedLocales.length,
+                    itemBuilder: (context, index) {
+                      final locale = LocaleProvider.supportedLocales[index];
+                      final isSelected = localeProvider.customLocale == locale;
+                      return ListTile(
+                        title: Text(_getLanguageName(locale.languageCode)),
+                        trailing: isSelected
+                            ? const Icon(Icons.check, color: Colors.green)
+                            : null,
+                        onTap: () {
+                          localeProvider.setCustomLocale(locale);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
     );
   }
 }

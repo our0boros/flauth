@@ -1,0 +1,52 @@
+{
+  "@@locale": "en",
+  "appTitle": "Flauth",
+  "languageSettings": "Language Settings",
+  "languageMode": "Language Mode",
+  "languageModeSystem": "System Default",
+  "languageModeCustom": "Custom",
+  "selectLanguage": "Select Language",
+  "securitySettings": "Security Settings",
+  "setupPinBiometrics": "Setup PIN & Biometrics",
+  "about": "About",
+  "version": "Version {version} ({buildNumber})",
+  "@version": {
+    "placeholders": {
+      "version": {"type": "String"},
+      "buildNumber": {"type": "String"}
+    }
+  },
+  "github": "GitHub",
+  "feedbackSupport": "Feedback & Support",
+  "privacyFirst": "A privacy-first, fully open-source TOTP authenticator for Android, macOS, Windows, and Linux.",
+  "copyright": "© {year} our0boros",
+  "@copyright": {
+    "placeholders": {
+      "year": {"type": "int"}
+    }
+  },
+  "noAccountsYet": "No accounts yet",
+  "tapToScan": "Tap the button below to scan a QR code",
+  "importExport": "Import / Export",
+  "scan": "Scan",
+  "protectYourAccounts": "Protect your accounts",
+  "setupPinRecommended": "It is highly recommended to set up a PIN to secure your 2FA tokens. Would you like to do it now?",
+  "later": "Later",
+  "setupNow": "Setup Now",
+  "copyCode": "Copy code",
+  "codeCopied": "Code copied to clipboard",
+  "editAccount": "Edit account",
+  "deleteAccount": "Delete account",
+  "deleteConfirmTitle": "Delete account?",
+  "deleteConfirmMessage": "Are you sure you want to delete {accountName}? This action cannot be undone.",
+  "@deleteConfirmMessage": {
+    "placeholders": {
+      "accountName": {"type": "String"}
+    }
+  },
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "accountName": "Account name",
+  "issuer": "Issuer",
+  "save": "Save"
+}

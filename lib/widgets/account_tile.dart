@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/account.dart';
 import '../providers/account_provider.dart';
 
@@ -41,22 +42,23 @@ class _AccountTileState extends State<AccountTile> {
       ),
       direction: DismissDirection.endToStart,
       confirmDismiss: (direction) async {
+        final l10n = AppLocalizations.of(context)!;
         return await showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text("Delete Account"),
-              content: const Text(
-                "Are you sure you want to delete this account? This cannot be undone.",
-              ),
+              title: Text(l10n.deleteConfirmTitle),
+              content: Text(l10n.deleteConfirmMessage(widget.account.issuer.isNotEmpty 
+                  ? widget.account.issuer 
+                  : widget.account.name)),
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text("Cancel"),
+                  child: Text(l10n.cancel),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text("Delete"),
+                  child: Text(l10n.delete),
                 ),
               ],
             );
@@ -79,12 +81,13 @@ class _AccountTileState extends State<AccountTile> {
             });
 
             if (_isCodeVisible) {
+              final l10n = AppLocalizations.of(context)!;
               Clipboard.setData(ClipboardData(text: code));
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Code revealed and copied to clipboard'),
-                  duration: Duration(seconds: 1),
+                SnackBar(
+                  content: Text(l10n.codeCopied),
+                  duration: const Duration(seconds: 1),
                 ),
               );
             }
